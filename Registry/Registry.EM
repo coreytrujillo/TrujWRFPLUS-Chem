@@ -1,0 +1,81 @@
+#  Registry file, EM
+
+#INCLUDES
+include registry.dimspec
+include Registry.EM_COMMON
+include registry.io_boilerplate
+
+include registry.fire
+include registry.avgflx
+include registry.stoch
+include registry.les
+include registry.cam
+include registry.clm
+include registry.ssib
+package   lscondscheme  mp_physics==98               -             moist:qv;g_moist:g_qv;a_moist:a_qv
+package   mkesslerscheme mp_physics==99              -             moist:qv,qc,qr;g_moist:g_qv,g_qc,g_qr;a_moist:a_qv,a_qc,a_qr
+package   surfdragscheme bl_pbl_physics==98          -             -
+package   ducuscheme     cu_physics==98              -             -
+halo      HALO_EM_PHYS_A_BL_SURF  dyn_em 4:xland
+#ifdef WRFPLUS=1
+include registry.wrfplus
+#endif
+include registry.lake
+include registry.diags
+include registry.afwa
+include registry.sbm
+include registry.elec
+include registry.bdy_perturb
+
+# added to output 5 for ESMF
+state   real   landmask            ij    misc          1     -     i0125rh05d=(interp_fcnm_imask)u=(copy_fcnm)   "LANDMASK"      "LAND MASK (1 FOR LAND, 0 FOR WATER)"  ""
+state   real   lakemask            ij    misc          1     -     i012rhd=(interp_fcnm_imask)u=(copy_fcnm)      "LAKEMASK"      "LAKE MASK (1 FOR LAKE, 0 FOR NON-LAKE)"  ""
+
+# Masked SST interpolation from the CG
+#state    real   SST              ij    misc        1         -     i01245rh05d=(interp_mask_field:lu_index,iswater)f=(p2c_mask:lu_index,tslb,num_soil_layers,iswater)   "SST"              "SEA SURFACE TEMPERATURE" "K"
+# Simple SST interpolation from the CG
+#state    real   SST              ij    misc        1         -     i01245rh05d=(interp_mask_field:lu_index,iswater)f=(p2c)   "SST"              "SEA SURFACE TEMPERATURE" "K"
+state    real   SST              ij     misc        1         -     i01245rh05d=(interp_mask_field:lu_index,iswater)   "SST"              "SEA SURFACE TEMPERATURE" "K"
+state    real   SST_INPUT        ij     misc        1         -     rh   "SST_INPUT"              "SEA SURFACE TEMPERATURE FROM WRFLOWINPUT FILE" "K"
+
+
+# Registry entries that are exclusive to Registry.EM
+
+# Chem Scalars
+rconfig   integer     chem_opt            namelist,physics	max_domains    0       rh       "chem_opt"              ""      ""
+state   real    -              ikjftb   chem        1         -     -    -                                       
+#
+# Tracer Scalars: If you want full resolved and non-resolved dispersion, compile WRF-Chem
+#
+state   real    -          ikjftb  tracer        1         -     -    -                                       
+state   real    tr17_1     ikjftb  tracer        1         -     irhusdf=(bdy_interp:dt)    "tr17_1"         "tr17_1"     "Dimensionless"
+state   real    tr17_2     ikjftb  tracer        1         -     irhusdf=(bdy_interp:dt)    "tr17_2"         "tr17_2"     "Dimensionless"
+state   real    tr17_3     ikjftb  tracer        1         -     irhusdf=(bdy_interp:dt)    "tr17_3"         "tr17_3"     "Dimensionless"
+state   real    tr17_4     ikjftb  tracer        1         -     irhusdf=(bdy_interp:dt)    "tr17_4"         "tr17_4"     "Dimensionless"
+state   real    tr17_5     ikjftb  tracer        1         -     irhusdf=(bdy_interp:dt)    "tr17_5"         "tr17_5"     "Dimensionless"
+state   real    tr17_6     ikjftb  tracer        1         -     irhusdf=(bdy_interp:dt)    "tr17_6"         "tr17_6"     "Dimensionless"
+state   real    tr17_7     ikjftb  tracer        1         -     irhusdf=(bdy_interp:dt)    "tr17_7"         "tr17_7"     "Dimensionless"
+state   real    tr17_8     ikjftb  tracer        1         -     irhusdf=(bdy_interp:dt)    "tr17_8"         "tr17_8"     "Dimensionless"
+state   real    plume      ikjftb  tracer        1         -     irhusdf=(bdy_interp:dt)    "PLUME"          "Fukushima Tracer"          -
+state   real    trbc1        ikjftb  tracer        1         -     irhusdf=(bdy_interp:dt)    "TRBC1"            "TRBC1"           "ug/kg-dryair"
+state   real    trbc2        ikjftb  tracer        1         -     irhusdf=(bdy_interp:dt)    "TRBC2"            "TRBC2"           "ug/kg-dryair"
+
+
+state   real    -          ikjftb  g_tracer      1         -     -    -                                       
+state   real    g_plume    ikjftb  g_tracer      1         -     irhusdf=(bdy_interp:dt)    "G_PLUME"        "Fukushima Tracer"          -
+state   real    g_trbc1        ikjftb  g_tracer    1         -     irhusdf=(bdy_interp:dt)    "g_TRBC1"            "g_TRBC1"           "ug/kg-dryair"
+state   real    g_trbc2        ikjftb  g_tracer    1         -     irhusdf=(bdy_interp:dt)    "g_TRBC2"            "g_TRBC2"           "ug/kg-dryair"
+
+
+state   real    -          ikjftb  a_tracer      1         -     -    -                                       
+state   real    a_plume    ikjftb  a_tracer      1         -     irhusdf=(bdy_interp:dt)    "A_PLUME"        "Fukushima Tracer"          -
+state   real    a_trbc1        ikjftb  a_tracer    1         -     irhusdf=(bdy_interp:dt)    "a_TRBC1"            "a_TRBC1"           "ug/kg-dryair"
+state   real    a_trbc2        ikjftb  a_tracer    1         -     irhusdf=(bdy_interp:dt)    "a_TRBC2"            "a_TRBC2"           "ug/kg-dryair"
+
+
+package   tracer_test1  tracer_opt==2       -             tracer:tr17_1,tr17_2,tr17_3,tr17_4,tr17_5,tr17_6,tr17_7,tr17_8
+package   tracer_test3  tracer_opt==3       -             tracer:plume;g_tracer:g_plume;a_tracer:a_plume
+package   tracer_chem   tracer_opt==4       -             tracer:trbc1,trbc2;g_tracer:g_trbc1,g_trbc2;a_tracer:a_trbc1,a_trbc2
+
+
+ 
